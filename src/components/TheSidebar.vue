@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="sidebar">
     <v-card
       color="#F6F6F6"
       outlined
@@ -11,20 +11,18 @@
           dense
           outlined
         ></v-select>
-
         <v-select
           v-model="selectDistrict"
           :items="districtList"
           class="mt-1"
           dense
           outlined
-          @change="chooseDistrict(selectDistrict)"
         ></v-select>
-
       </v-card-text>
+
       <v-card-text class="text-left pt-0">
         有取得口罩數量的藥局有
-        <span class="title pharnumber-color">{{pharmacyNumber}}</span>
+        <span class="title pharnumber-color">{{pharmaciesNumber}}</span>
         家
       </v-card-text>
     </v-card>
@@ -34,12 +32,22 @@
       style="max-height: 400px"
       class="overflow-y-auto"
     >
+      <v-card
+        v-show="markerList.length === 0"
+        outline
+        min-height="178"
+      >
+        <v-card-title class="d-flex justify-center align-stretch">
+          尚未提供藥局資料！
+        </v-card-title>
+      </v-card>
 
       <v-card
-        v-for="(item,key) in pharmaciesProperties"
+        v-for="(item,key) in pharmaciesList"
         :key="key"
         class="mx-auto"
         outlined
+        @click="choosePharmacy(item)"
       >
         <v-card-title class="pb-1">
           <span class="title mb-1">{{item.name}}</span>
@@ -61,25 +69,21 @@
 
         <v-card-actions class="d-flex justify-center mb-2">
           <v-chip
+            :color="item.mask_adult > 0 ?  '#668AFE' : '#E2E2E2'"
+            :text-color="item.mask_adult > 0 ? '#FFF' : '#9C9C9C'"
             label
-            color='#e2e2e2'
-            text-color="white"
-          >
-            成人口罩 {{item.mask_adult}} 個
-          </v-chip>
-
+            class="mr-1"
+            v-text="item.mask_adult > 0 ? `成人 : ${item.mask_adult} 個` : '成人 : 已售完'"
+          />
           <v-chip
+            :color="item.mask_child > 0 ?  '#668AFE' : '#E2E2E2'"
+            :text-color="item.mask_child > 0 ? '#FFF' : '#9C9C9C'"
             label
-            text-color="white"
-          >
-            成人口罩 {{item.mask_adult}} 個
-          </v-chip>
+            v-text="item.mask_child > 0 ? `兒童 : ${item.mask_child} 個` : '兒童 : 已售完'"
+          />
         </v-card-actions>
-
       </v-card>
-
     </div>
-
   </v-container>
 </template>
 
@@ -87,56 +91,49 @@
 export default {
   name: "TheSidebar",
   data: () => ({
-    //
+    maskNumber: []
   }),
   computed: {
-    cityList() {
-      return this.list.map(el => {
-        return el.city
-      })
-    },
-    districtList() {
-      if (this.selectCity) {
-        let ary = []
-        this.list.forEach(el => {
-          if (el.city === this.selectCity) {
-            ary.push(el.district)
-          }
-        })
-        this.$store.commit("SETSELECTDISTRICT", ary[0])
-        return ary
-      }
-    },
     list() {
       return this.$store.state.list
     },
-    pharmaciesData: {
-      get() {
-        return this.$store.state.pharmaciesData
-      },
-      set(val) {
-        this.$store.state.pharmaciesData = val
-      }
+    cityList() {
+      if (!this.list) return
+      return Array.from(new Set(this.list.map(el => el.city)))
     },
-    pharmacyNumber() {
-      if (this.pharmaciesData) {
-        let isMaskPhar = this.pharmaciesData.filter(el => {
+    districtList() {
+      if (!this.cityList || !this.selectCity) return
+      return this.list
+        .filter(el => el.city === this.selectCity)
+        .map(el => el.district)
+    },
+    markerList() {
+      return this.$store.getters.markerList
+    },
+    pharmaciesData() {
+      return this.$store.state.pharmaciesData
+    },
+    pharmaciesList() {
+      return this.pharmaciesData
+        .filter(el => {
           return (
-            el.properties.mask_child !== 0 || el.properties.mask_adult !== 0
+            el.properties.county === this.selectCity &&
+            el.properties.town === this.selectDistrict
           )
         })
-        return isMaskPhar.length
-      }
+        .map(el => el.properties)
     },
-    pharmaciesProperties() {
-      return this.pharmaciesData.map(el => el.properties)
+    pharmaciesNumber() {
+      return this.pharmaciesData.filter(el => {
+        return el.properties.mask_adult !== 0 || el.properties.mask_child !== 0
+      }).length
     },
     selectCity: {
       get() {
         return this.$store.state.selectCity
       },
       set(val) {
-        this.$store.state.selectCity = val
+        this.$store.commit("UPDATE_CITY_MESSAGE", val)
       }
     },
     selectDistrict: {
@@ -144,24 +141,34 @@ export default {
         return this.$store.state.selectDistrict
       },
       set(val) {
-        this.$store.state.selectDistrict = val
+        this.$store.commit("UPDATE_DISTRICT_MESSAGE", val)
+      }
+    },
+    selectPharmacy: {
+      get() {
+        return this.$store.state.selectPharmacy
+      },
+      set(val) {
+        this.$store.commit("UPDATE_PHARMACY_MESSAGE", val.name)
       }
     }
   },
   mounted() {
-    this.$store.dispatch("GETDATA")
-    this.$store.dispatch("GETLIST")
+    this.$store.dispatch("getList")
+    this.$store.dispatch("getPharmaciesData")
   },
   methods: {
-    chooseDistrict(item) {
-      this.$store.commit("SETSELECTDISTRICT", item)
+    choosePharmacy(item) {
+      this.$store.dispatch("choosePharmacy", item.name)
     }
   }
 }
 </script>
 
-<style>
-.pharnumber-color {
-  color: #668afe;
+<style lang="scss">
+.sidebar {
+  .pharnumber-color {
+    color: #668afe;
+  }
 }
 </style>

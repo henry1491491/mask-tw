@@ -21,17 +21,21 @@ Icon.Default.mergeOptions({
 
 /**
  * 功能迭代：
- * 做出篩選縣市及行政區
- * ajax call 資料，先顯示藥局地圖資訊
+ * 做出篩選縣市及行政區 => 已完成
+ * ajax call 資料，先顯示藥局地圖資訊 => 已完成
  * 圖標圖層 cluster 套件
+ * LeogJson
  *
  *
  * 問題紀錄：
  * Icon 物件源碼
- * Icon.Default 是什麼東西
+ * Icon.Default 是什麼東西 => 應該是預設的 icon 圖標
  * 什麼情況可以一次引入所有組件，就像 Vuetufy 那樣可以一次使用所有組件
  * this.$nextTick 跟 this.$refs 的引用
- * 假如專案裡的某些設定檔錯誤，最有效根本的解決辦法？
+ * 初始化會出現沒有 markerList 而間接引發的沒有 markerCenter 問題
+ * 圖層簡單一點，不要用到這麼複雜
+ * marker icon custom
+ *
  *
  * 筆記記錄：
  * 可以透過 myMap 這個物件的 mapObject 屬性去調用方法跟屬性
