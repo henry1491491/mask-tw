@@ -7,7 +7,6 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   strict: true,
   state: {
-    center: L.latLng(25.0292998, 121.5030307),
     list: [],
     selectCity: "臺北市",
     selectDistrict: "中正區",
@@ -32,15 +31,6 @@ export default new Vuex.Store({
             )
           }
         })
-    },
-    markerCenter: (state, getters) => {
-      if (!getters.markerList) return state.center
-      if (state.selectPharmacy) {
-        return markerList.filter(
-          el => el.properties.name === state.selectPharmacy
-        )["geometry"]
-      }
-      if (getters.markerList) return getters.markerList[0]["geometry"]
     }
   },
   mutations: {
@@ -55,12 +45,13 @@ export default new Vuex.Store({
       state.selectDistrict = state.list
         .filter(el => el.city === state.selectCity)
         .map(el => el.district)[0]
+      state.selectPharmacy = ""
     },
     UPDATE_DISTRICT_MESSAGE(state, district) {
       state.selectDistrict = district
+      state.selectPharmacy = ""
     },
     UPDATE_PHARMACY_MESSAGE(state, pharmacy) {
-      console.log("this is mutation :" + pharmacy, typeof pharmacy)
       state.selectPharmacy = pharmacy
     }
   },

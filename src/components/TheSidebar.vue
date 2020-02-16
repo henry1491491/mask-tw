@@ -19,7 +19,6 @@
           outlined
         ></v-select>
       </v-card-text>
-
       <v-card-text class="text-left pt-0">
         有取得口罩數量的藥局有
         <span class="title pharnumber-color">{{pharmaciesNumber}}</span>
@@ -47,7 +46,7 @@
         :key="key"
         class="mx-auto"
         outlined
-        @click="choosePharmacy(item)"
+        @click="choosePharmacy(item.name)"
       >
         <v-card-title class="pb-1">
           <span class="title mb-1">{{item.name}}</span>
@@ -158,8 +157,8 @@ export default {
     this.$store.dispatch("getPharmaciesData")
   },
   methods: {
-    choosePharmacy(item) {
-      this.$store.dispatch("choosePharmacy", item.name)
+    choosePharmacy(name) {
+      this.$store.commit("UPDATE_PHARMACY_MESSAGE", name)
     }
   }
 }

@@ -30,9 +30,7 @@ export default {
   components: {
     TheSidebar,
     VueLeaflet
-  },
-
-  data: () => ({})
+  }
 }
 </script>
 

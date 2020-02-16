@@ -20,10 +20,10 @@ Icon.Default.mergeOptions({
 })
 
 /**
- * 功能迭代：
+ * 功能：
  * 做出篩選縣市及行政區 => 已完成
  * ajax call 資料，先顯示藥局地圖資訊 => 已完成
- * 圖標圖層 cluster 套件
+ * 圖標圖層 cluster 套件 => 已完成
  * LeogJson
  *
  *
